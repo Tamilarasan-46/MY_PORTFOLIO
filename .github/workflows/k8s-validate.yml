@@ -90,8 +90,10 @@ jobs:
       # cluster never sees the ghcr.io/OWNER/REPO placeholder. Applying first
       # and then `kubectl set image` produces a guaranteed ImagePullBackOff and
       # three rollout revisions.
+      
       - name: Install kustomize
         run: |
+          sudo rm -f /usr/local/bin/kustomize
           curl -fsSL "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" \
             | bash -s -- 5.7.1 /usr/local/bin
 
