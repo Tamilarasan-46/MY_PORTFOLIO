@@ -1,0 +1,29 @@
+# Local check that the production image actually works:
+#   docker compose up --build
+#   open http://localhost:8080
+services:
+  portfolio:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VITE_CONTACT_ENDPOINT: ${VITE_CONTACT_ENDPOINT:-}
+    image: tamilarasan-portfolio:local
+    ports:
+      - '8080:8080'
+    restart: unless-stopped
+    # Mirrors the Kubernetes securityContext so local != prod surprises stay rare.
+    read_only: true
+    user: '101:101'
+    cap_drop: ['ALL']
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /tmp:size=16m
+      - /var/cache/nginx:size=16m
+    healthcheck:
+      test: ['CMD', 'wget', '-qO-', 'http://127.0.0.1:8080/healthz']
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s

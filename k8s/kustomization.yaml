@@ -1,0 +1,27 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Core workload. gateway.yaml is intentionally NOT included here — it needs a
+# real hostname, a Gateway controller and cert-manager in the cluster. Apply it
+# separately once those exist:  kubectl apply -f k8s/gateway.yaml
+resources:
+  - deployment.yaml
+  - service.yaml
+
+# `commonLabels` is deprecated in kustomize v5. Its replacement, plain
+# `labels:`, does NOT write into spec.selector — and since these labels are
+# already baked into the (immutable) Deployment selector, switching without
+# includeSelectors would make the next apply fail with "field is immutable".
+labels:
+  - includeSelectors: true
+    pairs:
+      app.kubernetes.io/name: portfolio
+      app.kubernetes.io/part-of: tamilarasan-portfolio
+      app.kubernetes.io/managed-by: kustomize
+
+# Point every manifest at the image the CI pipeline just pushed:
+#   kustomize edit set image ghcr.io/OWNER/REPO=ghcr.io/<you>/<repo>:sha-<digest>
+images:
+  - name: ghcr.io/OWNER/REPO
+    newName: ghcr.io/OWNER/REPO
+    newTag: latest

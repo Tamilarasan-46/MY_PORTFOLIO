@@ -1,0 +1,71 @@
+name: Deploy to GitHub Pages
+
+# This is the workflow that puts the site on a public URL, free, forever.
+# One-time setup: repo → Settings → Pages → Build and deployment → Source:
+# "GitHub Actions". Nothing else to configure.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write # publish the artifact
+  id-token: write # OIDC token that deploy-pages verifies
+
+# Never let two deploys race; queue instead of cancelling a live publish.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Build & publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Build
+        env:
+          # Project page → https://<user>.github.io/<repo>/  ⇒ base must be /<repo>/
+          # User/org page (repo named <user>.github.io) → set VITE_BASE to "/" instead.
+          VITE_BASE: /${{ github.event.repository.name }}/
+          # Repo VARIABLES, not secrets — VITE_* values are inlined into the
+          # client bundle and are public by construction. The Web3Forms access
+          # key is documented as public by design.
+          VITE_WEB3FORMS_KEY: ${{ vars.VITE_WEB3FORMS_KEY }}
+          VITE_CONTACT_ENDPOINT: ${{ vars.VITE_CONTACT_ENDPOINT }}
+        run: npm run build
+
+      # GitHub Pages has no rewrite rule. Serving index.html as 404.html means a
+      # deep link still boots the app with the URL preserved.
+      - name: Add SPA fallback
+        run: cp dist/index.html dist/404.html
+
+      - uses: actions/configure-pages@v6
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: ./dist
+
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v5
+
+      - name: Report URL
+        run: echo "Live at ${{ steps.deployment.outputs.page_url }}" >> "$GITHUB_STEP_SUMMARY"

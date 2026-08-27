@@ -1,0 +1,123 @@
+name: Validate Kubernetes manifests
+
+# Proves the manifests are real: schema-checked, then actually rolled out on a
+# throwaway kind cluster inside the runner and curled. Costs nothing.
+
+on:
+  push:
+    branches: [main]
+    paths: ['k8s/**', 'Dockerfile', 'deploy/**', '.github/workflows/k8s-validate.yml']
+  pull_request:
+    branches: [main]
+    paths: ['k8s/**', 'Dockerfile', 'deploy/**', '.github/workflows/k8s-validate.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  KUBECONFORM_VERSION: v0.8.0
+  KIND_VERSION: v0.33.0
+  K8S_VERSION: '1.36.0'
+
+jobs:
+  schema-lint:
+    name: Schema validation (kubeconform)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install kubeconform
+        run: |
+          # -f so a 404 fails here instead of writing an HTML error page into
+          # the tarball and failing later with "not in gzip format".
+          curl -fsSL -o kubeconform.tar.gz \
+            "https://github.com/yannh/kubeconform/releases/download/${KUBECONFORM_VERSION}/kubeconform-linux-amd64.tar.gz"
+          tar xzf kubeconform.tar.gz kubeconform
+          sudo mv kubeconform /usr/local/bin/
+
+      - name: Validate
+        run: |
+          kubeconform \
+            -kubernetes-version "${K8S_VERSION}" \
+            -strict \
+            -summary \
+            -ignore-missing-schemas \
+            -schema-location default \
+            -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json' \
+            k8s/
+
+  live-rollout:
+    name: Real rollout on kind
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: docker/setup-buildx-action@v4
+
+      # Build the real image locally so the smoke test exercises this commit,
+      # not whatever :latest happens to be in the registry.
+      - name: Build image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          push: false
+          load: true
+          tags: portfolio:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Create kind cluster
+        uses: helm/kind-action@v1
+        with:
+          version: ${{ env.KIND_VERSION }}
+          # Pinned so the cluster runs the same API version schema-lint checks.
+          node_image: kindest/node:v${{ env.K8S_VERSION }}
+          cluster_name: ci
+          wait: 120s
+
+      - name: Load images into the cluster
+        run: |
+          kind load docker-image portfolio:ci --name ci
+          # Pre-load the probe image too — anonymous Docker Hub pulls from a
+          # shared runner IP are rate limited and flake.
+          docker pull curlimages/curl:8.11.1
+          kind load docker-image curlimages/curl:8.11.1 --name ci
+
+      # Point kustomize at the locally-built image BEFORE applying, so the
+      # cluster never sees the ghcr.io/OWNER/REPO placeholder. Applying first
+      # and then `kubectl set image` produces a guaranteed ImagePullBackOff and
+      # three rollout revisions.
+      - name: Install kustomize
+        run: |
+          curl -fsSL "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" \
+            | bash -s -- 5.7.1 /usr/local/bin
+
+      - name: Pin image
+        run: |
+          cd k8s
+          kustomize edit set image ghcr.io/OWNER/REPO=portfolio:ci
+
+      - name: Server-side dry run
+        run: kubectl apply --dry-run=server -k k8s/
+
+      - name: Apply
+        run: kubectl apply -k k8s/
+
+      - name: Wait for rollout
+        run: kubectl rollout status deployment/portfolio --timeout=180s
+
+      - name: Smoke test the running pods
+        run: |
+          kubectl run probe --rm -i --restart=Never --image=curlimages/curl:8.11.1 \
+            --image-pull-policy=Never -- \
+            sh -c 'curl -sf http://portfolio/healthz && curl -sf http://portfolio/ | head -c 200'
+
+      - name: Diagnostics on failure
+        if: failure()
+        run: |
+          kubectl get pods -o wide
+          kubectl describe deployment/portfolio
+          kubectl logs -l app.kubernetes.io/name=portfolio --tail=100 --all-containers || true

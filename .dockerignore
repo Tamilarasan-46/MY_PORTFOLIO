@@ -1,0 +1,20 @@
+# Never ship these into the image build context
+node_modules
+dist
+.git
+.github
+.gitignore
+.env
+.env.*
+!.env.example
+Dockerfile*
+.dockerignore
+README.md
+DEPLOYMENT.md
+k8s
+*.log
+coverage
+.vscode
+.idea
+.DS_Store
+Thumbs.db

@@ -1,0 +1,32 @@
+/*
+ * App-level layout only.
+ *
+ * NOTE: this file previously carried the Vite starter defaults
+ * (#root { max-width: 1280px; padding: 2rem; text-align: center })
+ * which capped every full-bleed section at 1280px and centred all body
+ * copy. Sections manage their own max-width containers, so #root stays open.
+ */
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+  isolation: isolate;
+}
+
+/* Keyboard-only skip link. */
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -100%;
+  z-index: 100;
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.75rem;
+  background: rgb(var(--brand));
+  color: rgb(var(--brand-ink));
+  font-weight: 600;
+  transition: top 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.skip-link:focus-visible {
+  top: 1rem;
+}

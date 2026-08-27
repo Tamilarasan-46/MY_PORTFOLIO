@@ -1,0 +1,100 @@
+# Ingress via Gateway API — NOT ingress-nginx.
+#
+# ingress-nginx was retired in March 2026 (archived read-only, no further CVE
+# patches) and its intended successor InGate was abandoned. The Kubernetes
+# project now points new workloads at Gateway API (GA since v1.0, v1.4 current).
+#   https://www.kubernetes.io/blog/2026/01/29/ingress-nginx-statement/
+#
+# Prerequisites in the cluster:
+#   1. Gateway API CRDs
+#      kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.4.1/standard-install.yaml
+#   2. A conformant controller — pick ONE and set gatewayClassName to match:
+#      Envoy Gateway | NGINX Gateway Fabric | Traefik | kgateway
+#   3. cert-manager with Gateway API support enabled
+#      (--enable-gateway-api / config.enableGatewayAPI=true)
+#
+# Replace portfolio.example.com and the email before applying.
+
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: portfolio
+  annotations:
+    # cert-manager watches this and mints the portfolio-tls Secret for us.
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  gatewayClassName: envoy-gateway # ← the class your controller registers
+  listeners:
+    - name: http
+      hostname: portfolio.example.com
+      port: 80
+      protocol: HTTP
+      allowedRoutes:
+        namespaces:
+          from: Same
+    - name: https
+      hostname: portfolio.example.com
+      port: 443
+      protocol: HTTPS
+      allowedRoutes:
+        namespaces:
+          from: Same
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - name: portfolio-tls
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: portfolio
+spec:
+  parentRefs:
+    - name: portfolio
+      sectionName: https
+  hostnames:
+    - portfolio.example.com
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: portfolio
+          port: 80
+---
+# Force every plaintext request to HTTPS.
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: portfolio-https-redirect
+spec:
+  parentRefs:
+    - name: portfolio
+      sectionName: http
+  hostnames:
+    - portfolio.example.com
+  rules:
+    - filters:
+        - type: RequestRedirect
+          requestRedirect:
+            scheme: https
+            statusCode: 301
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: Tamilmit46tech@gmail.com
+    privateKeySecretRef:
+      name: letsencrypt-prod-account-key
+    solvers:
+      - http01:
+          gatewayHTTPRoute:
+            parentRefs:
+              - name: portfolio
+                namespace: default
+                kind: Gateway
