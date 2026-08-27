@@ -304,7 +304,7 @@ export const projects = [
     accent: 'solar' as const,
     status: 'Academic',
     access: 'academic' as ProjectAccess,
-    image: '/project-signlanguage.jpg',
+    image: `${import.meta.env.BASE_URL}project-signlanguage.jpg`,
     features: [
       'Voice input denoised and converted to text via a trained speech-to-text module',
       'NLP pipeline mapping text directly to sign language gestures in real time',

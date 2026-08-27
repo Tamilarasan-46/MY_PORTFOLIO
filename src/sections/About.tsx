@@ -1,6 +1,7 @@
 import { Check, Download, MapPin } from 'lucide-react'
 import { useReveal, revealDelay } from '../hooks/use-reveal'
 import { profile, stats, focusAreas, achievements, accentClass } from '../data/profile'
+import Portrait from '../components/Portrait'
 
 export default function About() {
   const { ref, isVisible } = useReveal<HTMLElement>(0.15)
@@ -39,24 +40,32 @@ export default function About() {
                 className="absolute -inset-4 border border-line rounded-3xl"
                 aria-hidden="true"
               />
-              <div className="relative rounded-2xl overflow-hidden">
-                <img
-                  src="/hero-profile.jpg"
-                  alt={`${profile.name} at work`}
-                  width={640}
-                  height={640}
-                  loading="lazy"
-                  className="w-full aspect-square object-cover"
-                />
+              {/*
+                The portrait is a transparent cutout, so it gets a built panel
+                to stand on rather than being cropped into a square. Dot grid
+                and accent wash come from the same tokens as every other card.
+              */}
+              {/* Fixed 4:5 card. Without an aspect ratio the 745×1200 cutout
+                  would stretch this column far past the stats beside it. */}
+              <div className="relative aspect-[4/5] overflow-hidden rounded-2xl border border-line bg-gradient-to-b from-panel-raised to-panel">
+                <div className="absolute inset-0 dot-grid opacity-[0.05]" aria-hidden="true" />
                 <div
-                  className="absolute inset-0 bg-gradient-to-t from-canvas/70 via-transparent to-transparent"
+                  className="absolute bottom-0 left-1/2 h-2/3 w-[85%] -translate-x-1/2 rounded-full bg-brand/10 blur-[70px]"
                   aria-hidden="true"
                 />
-              </div>
 
-              <div className="absolute bottom-4 left-4 right-4 flex items-center gap-2 text-sm text-fg-muted">
-                <MapPin size={16} className="text-brand" aria-hidden="true" />
-                {profile.location}
+                <Portrait className="absolute bottom-0 left-1/2 z-10 h-[104%] w-auto max-w-none -translate-x-1/2" />
+
+                {/* Fade the bottom crop line into the panel. */}
+                <div
+                  className="absolute inset-x-0 bottom-0 z-20 h-24 bg-gradient-to-t from-panel to-transparent"
+                  aria-hidden="true"
+                />
+
+                <p className="absolute bottom-4 left-4 z-30 flex items-center gap-2 text-sm text-fg-muted">
+                  <MapPin size={16} className="text-brand" aria-hidden="true" />
+                  {profile.location}
+                </p>
               </div>
             </div>
 

@@ -3,6 +3,7 @@ import { Linkedin, Github, Mail, ArrowUpRight, ChevronDown, Download, Globe } fr
 import { profile } from '../data/profile'
 import { WhatsAppIcon } from '../components/icons/WhatsAppIcon'
 import { whatsappLink } from '../lib/contact'
+import Portrait from '../components/Portrait'
 
 const TYPE_SPEED = 70
 const DELETE_SPEED = 35
@@ -202,31 +203,32 @@ export default function Hero() {
             className="lg:col-span-5 relative flex justify-center lg:justify-end animate-enter-right"
             style={{ animationDelay: '200ms' }}
           >
-            <div className="relative">
+            {/*
+              Free-standing cutout, not a cropped square. The backdrop below
+              does the work a photo background would normally do: a warm floor
+              glow to seat the figure, and concentric rings to give the
+              silhouette something to read against.
+            */}
+            <div className="relative w-[17rem] sm:w-[21rem] lg:w-[24rem]">
+              <div className="absolute inset-0 -z-10 flex items-center justify-center" aria-hidden="true">
+                <div className="absolute bottom-[6%] h-[62%] w-[112%] rounded-full bg-brand/15 blur-[90px]" />
+                <div className="absolute bottom-[18%] h-[46%] w-[80%] rounded-full bg-beam/15 blur-[70px]" />
+                <div className="absolute bottom-[4%] aspect-square w-[104%] rounded-full border border-line/70" />
+                <div className="absolute bottom-[10%] aspect-square w-[84%] rounded-full border border-brand/20" />
+              </div>
+
+              <Portrait priority className="relative w-full h-auto animate-float" />
+
+              {/* Grounding shadow so the figure doesn't float in a void. */}
               <div
-                className="absolute -inset-6 bg-gradient-to-br from-brand/25 to-beam/25 rounded-[2rem] blur-3xl"
+                className="absolute -bottom-2 left-1/2 h-6 w-[62%] -translate-x-1/2 rounded-[50%] bg-canvas-deep/80 blur-xl"
                 aria-hidden="true"
               />
 
-              <div className="relative w-72 h-72 sm:w-[22rem] sm:h-[22rem] rounded-3xl overflow-hidden border border-line shadow-lift animate-float">
-                <img
-                  src="/hero-profile.jpg"
-                  alt={`Portrait of ${profile.name}`}
-                  width={352}
-                  height={352}
-                  loading="eager"
-                  className="w-full h-full object-cover"
-                />
-                <div
-                  className="absolute inset-0 bg-gradient-to-t from-canvas/60 via-transparent to-transparent"
-                  aria-hidden="true"
-                />
-              </div>
-
-              <div className="absolute -top-3 -right-3 px-4 py-2 bg-panel border border-line rounded-full text-sm font-medium text-brand shadow-panel">
+              <div className="absolute top-[12%] -right-2 sm:-right-6 px-4 py-2 glass rounded-full text-sm font-medium text-brand shadow-panel">
                 Vue.js · Phoenix
               </div>
-              <div className="absolute -bottom-3 -left-3 px-4 py-2 bg-panel border border-line rounded-full text-sm font-medium text-beam shadow-panel">
+              <div className="absolute bottom-[22%] -left-2 sm:-left-6 px-4 py-2 glass rounded-full text-sm font-medium text-beam shadow-panel">
                 {profile.experienceYears} Years Experience
               </div>
             </div>

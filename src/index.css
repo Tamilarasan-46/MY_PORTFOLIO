@@ -155,6 +155,20 @@
   .ambient {
     @apply pointer-events-none absolute rounded-full blur-[150px];
   }
+
+  /*
+   * Edge light for the cutout portrait.
+   *
+   * drop-shadow follows the alpha silhouette (unlike box-shadow, which would
+   * trace the image rectangle), so this reads as a rim light on the subject.
+   * Lime on one side, sky on the other — the two accent tokens — which is what
+   * lifts a navy suit off a #010101 background instead of letting it merge.
+   */
+  .portrait-rim {
+    filter: drop-shadow(-2px 0 2px rgb(var(--brand) / 0.2))
+      drop-shadow(2px 1px 3px rgb(var(--beam) / 0.14))
+      drop-shadow(0 26px 55px rgb(0 0 0 / 0.6));
+  }
 }
 
 @layer utilities {

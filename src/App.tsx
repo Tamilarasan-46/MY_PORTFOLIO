@@ -8,6 +8,7 @@ import Education from './sections/Education'
 import Contact from './sections/Contact'
 import Navigation from './components/Navigation'
 import WhatsAppFab from './components/WhatsAppFab'
+import ScrollToTop from './components/ScrollToTop'
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
         <Contact />
       </main>
 
+      <ScrollToTop />
       <WhatsAppFab />
     </div>
   )
