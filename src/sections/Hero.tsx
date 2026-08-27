@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
-import { Linkedin, Github, Mail, ArrowUpRight, ChevronDown, Download, Globe } from 'lucide-react'
+import { Linkedin, Github, Mail, ArrowUpRight, ChevronDown, Download } from 'lucide-react'
 import { profile } from '../data/profile'
 import { WhatsAppIcon } from '../components/icons/WhatsAppIcon'
 import { whatsappLink } from '../lib/contact'
 import Portrait from '../components/Portrait'
+import CountUp from '../components/CountUp'
 
 const TYPE_SPEED = 70
 const DELETE_SPEED = 35
@@ -56,7 +57,6 @@ const socials = [
   { icon: WhatsAppIcon, href: whatsappLink(), label: `Chat with ${profile.name} on WhatsApp` },
   { icon: Linkedin, href: profile.links.linkedin, label: 'LinkedIn profile' },
   { icon: Github, href: profile.links.github, label: 'GitHub profile' },
-  { icon: Globe, href: profile.links.portfolio, label: 'Personal site' },
   { icon: Mail, href: `mailto:${profile.email}`, label: `Email ${profile.name}` },
 ]
 
@@ -113,19 +113,24 @@ export default function Hero() {
               <p className="text-brand text-sm font-semibold uppercase tracking-[0.2em]">
                 Hello, I&apos;m
               </p>
+              {/* The name stays the h1 for semantics, but the role carries the
+                  visual weight — it is what a recruiter is actually scanning for. */}
               <h1
                 id="hero-heading"
-                className="text-display-sm sm:text-display-md lg:text-display-lg font-bold"
+                className="text-2xl sm:text-3xl lg:text-4xl font-semibold"
               >
                 <span className="text-fg">{profile.nameLead}</span>
                 <span className="text-brand">{profile.nameTail}</span>
               </h1>
 
               {/* Rotating role — fixed height so the layout never jumps */}
-              <div className="h-10 sm:h-12 flex items-center" aria-live="polite">
-                <span className="text-xl sm:text-3xl font-display font-medium text-fg-muted">
+              <div
+                className="flex items-center h-11 sm:h-14 lg:h-16"
+                aria-live="polite"
+              >
+                <span className="text-3xl sm:text-4xl lg:text-5xl font-display font-bold text-brand">
                   {typedRole}
-                  <span className="inline-block w-[3px] h-6 sm:h-8 bg-brand ml-1 align-middle animate-pulse" />
+                  <span className="inline-block w-[3px] h-7 sm:h-9 lg:h-11 bg-brand ml-1 align-middle animate-pulse" />
                 </span>
               </div>
             </div>
@@ -170,11 +175,11 @@ export default function Hero() {
               <a
                 href={profile.resumeUrl}
                 download
-                className="btn-ghost"
-                aria-label="Download résumé as PDF"
+                className="btn-resume"
+                aria-label="Download resume as PDF"
               >
                 <Download size={18} />
-                Résumé
+                Resume
               </a>
             </div>
 
@@ -225,11 +230,8 @@ export default function Hero() {
                 aria-hidden="true"
               />
 
-              <div className="absolute top-[12%] -right-2 sm:-right-6 px-4 py-2 glass rounded-full text-sm font-medium text-brand shadow-panel">
-                Vue.js · Phoenix
-              </div>
               <div className="absolute bottom-[22%] -left-2 sm:-left-6 px-4 py-2 glass rounded-full text-sm font-medium text-beam shadow-panel">
-                {profile.experienceYears} Years Experience
+                <CountUp value={profile.experienceYears} /> Years Experience
               </div>
             </div>
           </div>

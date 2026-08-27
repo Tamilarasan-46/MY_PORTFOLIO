@@ -2,6 +2,7 @@ import { Check, Download, MapPin } from 'lucide-react'
 import { useReveal, revealDelay } from '../hooks/use-reveal'
 import { profile, stats, focusAreas, achievements, accentClass } from '../data/profile'
 import Portrait from '../components/Portrait'
+import CountUp from '../components/CountUp'
 
 export default function About() {
   const { ref, isVisible } = useReveal<HTMLElement>(0.15)
@@ -81,7 +82,10 @@ export default function About() {
                 >
                   <dt className="sr-only">{stat.label}</dt>
                   <dd>
-                    <p className="font-display text-3xl font-bold text-brand">{stat.value}</p>
+                    <CountUp
+                      value={stat.value}
+                      className="block font-display text-3xl font-bold text-brand"
+                    />
                     <p className="text-sm font-medium text-fg mt-1">{stat.label}</p>
                     <p className="text-xs text-fg-subtle mt-0.5">{stat.hint}</p>
                   </dd>
@@ -142,9 +146,9 @@ export default function About() {
               </ul>
             </div>
 
-            <a href={profile.resumeUrl} download className="btn-ghost">
+            <a href={profile.resumeUrl} download className="btn-resume">
               <Download size={18} aria-hidden="true" />
-              Download Résumé
+              Download Resume
             </a>
           </div>
         </div>

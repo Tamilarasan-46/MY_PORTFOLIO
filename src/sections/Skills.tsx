@@ -1,16 +1,9 @@
-import { useEffect, useState } from 'react'
 import { useReveal, revealDelay } from '../hooks/use-reveal'
-import { skillCategories, proficiency, currentlyBuilding, accentClass } from '../data/profile'
+import { skillCategories, stackTiers, currentlyBuilding, accentClass } from '../data/profile'
+import TechIcon from '../components/TechIcon'
 
 export default function Skills() {
   const { ref, isVisible } = useReveal<HTMLElement>(0.15)
-  const [levels, setLevels] = useState<number[]>(() => proficiency.map(() => 0))
-
-  useEffect(() => {
-    if (!isVisible) return
-    const t = setTimeout(() => setLevels(proficiency.map((p) => p.level)), 350)
-    return () => clearTimeout(t)
-  }, [isVisible])
 
   return (
     <section
@@ -61,7 +54,8 @@ export default function Skills() {
 
                 <ul className="flex flex-wrap gap-2">
                   {category.skills.map((skill) => (
-                    <li key={skill} className="chip">
+                    <li key={skill} className="chip gap-2">
+                      <TechIcon name={skill} size={15} />
                       {skill}
                     </li>
                   ))}
@@ -71,40 +65,49 @@ export default function Skills() {
           })}
         </div>
 
-        {/* Proficiency */}
+        {/*
+          Replaces the old self-reported percentage bars. "Vue.js 90%" is a
+          number nobody can verify and every portfolio invents; how often
+          something is actually reached for is a claim that means something.
+        */}
         <div
           className={`transition-all duration-700 delay-300 ease-spring ${
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
           }`}
         >
-          <h3 className="text-2xl font-semibold mb-8">Working proficiency</h3>
+          <h3 className="text-2xl font-semibold mb-2">How deep I go</h3>
+          <p className="text-fg-subtle mb-8 max-w-2xl">
+            Grouped by how much of it I actually use, rather than a percentage.
+          </p>
 
-          <ul className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {proficiency.map((tech, index) => (
-              <li key={tech.name} className="surface-card p-5 hover:border-line-strong">
-                <div className="flex items-center justify-between mb-3">
-                  <span className="font-medium text-fg">{tech.name}</span>
-                  <span className="text-sm font-semibold text-brand tabular-nums">
-                    {levels[index]}%
-                  </span>
-                </div>
-
-                <div
-                  className="h-1.5 bg-canvas-deep rounded-full overflow-hidden"
-                  role="progressbar"
-                  aria-valuenow={tech.level}
-                  aria-valuemin={0}
-                  aria-valuemax={100}
-                  aria-label={`${tech.name} proficiency`}
+          <div className="grid md:grid-cols-3 gap-5">
+            {stackTiers.map((tier, index) => {
+              const a = accentClass[tier.accent]
+              return (
+                <article
+                  key={tier.title}
+                  className={`surface-card surface-card-hover ${a.borderHover} p-6`}
+                  style={revealDelay(index)}
                 >
-                  <div
-                    className="h-full bg-gradient-to-r from-brand to-beam rounded-full transition-[width] duration-1000 ease-spring"
-                    style={{ width: `${levels[index]}%` }}
-                  />
-                </div>
-              </li>
-            ))}
-          </ul>
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className={`w-2.5 h-2.5 rounded-full ${a.dot}`} aria-hidden="true" />
+                    <h4 className={`font-semibold ${a.text}`}>{tier.title}</h4>
+                  </div>
+
+                  <p className="text-sm text-fg-subtle mb-5 leading-relaxed">{tier.blurb}</p>
+
+                  <ul className="flex flex-wrap gap-2">
+                    {tier.items.map((item) => (
+                      <li key={item} className="chip-sm gap-1.5">
+                        <TechIcon name={item} size={13} />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </article>
+              )
+            })}
+          </div>
         </div>
 
         {/* Now building */}

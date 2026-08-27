@@ -2,6 +2,7 @@ import type { ElementType } from 'react'
 import { Calendar, Lock, GraduationCap, Mail, Check } from 'lucide-react'
 import { useReveal, revealDelay } from '../hooks/use-reveal'
 import { projects, profile, accentClass } from '../data/profile'
+import TechIcon from '../components/TechIcon'
 
 /**
  * Generated cover for work that has no public screenshot.
@@ -129,7 +130,8 @@ export default function Projects() {
 
                 <ul className="flex flex-wrap gap-2 mb-6" aria-label="Technologies">
                   {project.technologies.map((tech) => (
-                    <li key={tech} className="chip-sm">
+                    <li key={tech} className="chip-sm gap-1.5">
+                      <TechIcon name={tech} size={13} />
                       {tech}
                     </li>
                   ))}

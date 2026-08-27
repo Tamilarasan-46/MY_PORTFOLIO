@@ -1,6 +1,8 @@
 import { Calendar, MapPin, Building2 } from 'lucide-react'
 import { useReveal, revealDelay } from '../hooks/use-reveal'
 import { experience, impactMetrics } from '../data/profile'
+import CountUp from '../components/CountUp'
+import TechIcon from '../components/TechIcon'
 
 export default function Experience() {
   const { ref, isVisible } = useReveal<HTMLElement>(0.1)
@@ -74,45 +76,62 @@ export default function Experience() {
 
                   <ul className="flex flex-wrap gap-2" aria-label="Technologies used">
                     {role.technologies.map((tech) => (
-                      <li key={tech} className="chip-sm">
+                      <li key={tech} className="chip-sm gap-1.5">
+                        <TechIcon name={tech} size={13} />
                         {tech}
                       </li>
                     ))}
                   </ul>
                 </div>
 
-                {/* Responsibility groups — all visible, no click required */}
+                {/* What I owned, as a step-down timeline rather than a grid —
+                    the work reads as a sequence you walk down. */}
                 <div className="p-6 lg:p-8">
-                  <h4 className="text-xs font-semibold text-fg-subtle uppercase tracking-[0.18em] mb-6">
+                  <h4 className="text-xs font-semibold text-fg-subtle uppercase tracking-[0.18em] mb-8">
                     What I owned
                   </h4>
 
-                  <div className="grid md:grid-cols-2 gap-4">
-                    {role.groups.map((group) => (
-                      <div
-                        key={group.label}
-                        className="p-5 bg-canvas border border-line rounded-xl transition-colors duration-200 hover:border-brand/30"
-                      >
-                        <div className="flex items-center gap-3 mb-3">
-                          <span className="w-9 h-9 shrink-0 rounded-lg bg-brand/10 flex items-center justify-center">
-                            <group.icon className="w-4 h-4 text-brand" aria-hidden="true" />
-                          </span>
-                          <h5 className="font-semibold text-fg text-sm">{group.label}</h5>
-                        </div>
+                  <ol className="relative">
+                    {role.groups.map((group, stepIndex) => {
+                      const isLast = stepIndex === role.groups.length - 1
+                      return (
+                        <li key={group.label} className={`relative pl-16 ${isLast ? '' : 'pb-8'}`}>
+                          {/* Connector — omitted on the last step so the line
+                              stops rather than trailing into nothing. */}
+                          {!isLast && (
+                            <span
+                              className="absolute left-6 top-12 bottom-0 w-px -translate-x-1/2 bg-gradient-to-b from-brand/40 to-line"
+                              aria-hidden="true"
+                            />
+                          )}
 
-                        <ul className="space-y-2">
-                          {group.points.map((point) => (
-                            <li
-                              key={point}
-                              className="text-sm leading-relaxed text-fg-subtle pl-4 relative before:absolute before:left-0 before:top-2 before:w-1.5 before:h-1.5 before:rounded-full before:bg-brand/50"
-                            >
-                              {point}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    ))}
-                  </div>
+                          {/* Step marker */}
+                          <span
+                            className="absolute left-0 top-0 flex h-12 w-12 items-center justify-center rounded-full border border-brand/40 bg-panel-raised shadow-panel"
+                            aria-hidden="true"
+                          >
+                            <group.icon className="h-5 w-5 text-brand" />
+                          </span>
+
+                          <p className="text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-brand/70 tabular-nums">
+                            Step {String(stepIndex + 1).padStart(2, '0')}
+                          </p>
+                          <h5 className="mb-3 mt-1 font-semibold text-fg">{group.label}</h5>
+
+                          <ul className="space-y-2">
+                            {group.points.map((point) => (
+                              <li
+                                key={point}
+                                className="relative pl-4 text-sm leading-relaxed text-fg-subtle before:absolute before:left-0 before:top-2 before:h-1.5 before:w-1.5 before:rounded-full before:bg-brand/50"
+                              >
+                                {point}
+                              </li>
+                            ))}
+                          </ul>
+                        </li>
+                      )
+                    })}
+                  </ol>
                 </div>
               </article>
             </li>
@@ -134,9 +153,10 @@ export default function Experience() {
               <div key={metric.label} className="surface-card surface-card-hover p-6 text-center">
                 <dt className="sr-only">{metric.label}</dt>
                 <dd>
-                  <p className="font-display text-3xl md:text-4xl font-bold text-brand mb-1">
-                    {metric.value}
-                  </p>
+                  <CountUp
+                    value={metric.value}
+                    className="block font-display text-3xl md:text-4xl font-bold text-brand mb-1"
+                  />
                   <p className="text-sm text-fg-subtle">{metric.label}</p>
                 </dd>
               </div>

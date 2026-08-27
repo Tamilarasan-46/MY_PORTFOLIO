@@ -62,7 +62,6 @@ export const profile = {
   links: {
     linkedin: 'https://www.linkedin.com/in/tamilarasan-m-566892266',
     github: 'https://github.com/Tamilarasan-46',
-    portfolio: 'https://tamilarasanportfolio.wixsite.com/mysite',
   },
 } as const
 
@@ -119,7 +118,7 @@ export const skillCategories = [
     title: 'Databases',
     icon: Database,
     accent: 'solar' as const,
-    skills: ['PostgreSQL', 'MySQL'],
+    skills: ['PostgreSQL', 'MySQL', 'MongoDB'],
   },
   {
     title: 'Domain & Concepts',
@@ -135,13 +134,29 @@ export const skillCategories = [
   },
 ] as const
 
-export const proficiency = [
-  { name: 'Vue.js', level: 90 },
-  { name: 'JavaScript', level: 88 },
-  { name: 'HTML5 / CSS3', level: 88 },
-  { name: 'REST API Integration', level: 85 },
-  { name: 'PostgreSQL / MySQL', level: 82 },
-  { name: 'Elixir / Phoenix', level: 78 },
+/**
+ * Depth, not invented percentages. A self-reported "Vue.js 90%" tells a reader
+ * nothing and cannot be verified; how often something is actually used can be.
+ */
+export const stackTiers = [
+  {
+    title: 'Daily driver',
+    blurb: 'The stack I open every morning and ship in.',
+    accent: 'brand' as const,
+    items: ['Vue.js', 'JavaScript', 'Elixir', 'Phoenix Framework', 'PostgreSQL', 'REST APIs', 'Git'],
+  },
+  {
+    title: 'Shipped in production',
+    blurb: 'Used to deliver real features, just not every day.',
+    accent: 'beam' as const,
+    items: ['Python', 'MySQL', 'MongoDB', 'HTML5', 'CSS3', 'Bootstrap', 'Postman', 'VS Code'],
+  },
+  {
+    title: 'Domain depth',
+    blurb: 'Business rules I have implemented, not just read about.',
+    accent: 'flare' as const,
+    items: ['ERP', 'GST', 'e-Invoice', 'AI-assisted Accounting', 'SaaS', 'Workflow Automation'],
+  },
 ] as const
 
 export const currentlyBuilding =
@@ -272,7 +287,7 @@ export const projects = [
       'Workflow automation that removes repetitive manual data entry',
       'Reporting layer backed by optimized PostgreSQL queries',
     ],
-    technologies: ['Vue.js', 'JavaScript', 'Phoenix', 'PostgreSQL', 'MySQL'],
+    technologies: ['Vue.js', 'JavaScript', 'Elixir', 'Phoenix', 'PostgreSQL', 'MySQL'],
   },
   {
     title: 'GST & e-Invoice Integration',

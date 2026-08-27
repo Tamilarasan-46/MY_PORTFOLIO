@@ -36,6 +36,37 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
+    <!--
+      Applies the saved theme before the first paint. Without this the page
+      renders dark for a frame and then snaps to light, which is worse than
+      having no light mode at all. "system" is resolved to a concrete value
+      here so the stylesheet needs only one [data-theme='light'] block.
+    -->
+    <script>
+      (function () {
+        try {
+          var root = document.documentElement;
+          var choice = localStorage.getItem('portfolio-theme') || 'system';
+          var dark =
+            choice === 'dark' ||
+            (choice === 'system' &&
+              window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+          root.dataset.theme = dark ? 'dark' : 'light';
+          root.classList.toggle('dark', dark);
+
+          var accent = localStorage.getItem('portfolio-accent');
+          root.dataset.accent =
+            ['lime', 'sky', 'violet', 'amber'].indexOf(accent) > -1 ? accent : 'lime';
+
+          var meta = document.querySelector('meta[name="theme-color"]');
+          if (meta) meta.setAttribute('content', dark ? '#010101' : '#fafaf9');
+        } catch (e) {
+          /* Blocked storage — fall through to the stylesheet default (dark). */
+        }
+      })();
+    </script>
+
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -65,8 +96,7 @@
         ],
         "sameAs": [
           "https://www.linkedin.com/in/tamilarasan-m-566892266",
-          "https://github.com/Tamilarasan-46",
-          "https://tamilarasanportfolio.wixsite.com/mysite"
+          "https://github.com/Tamilarasan-46"
         ]
       }
     </script>

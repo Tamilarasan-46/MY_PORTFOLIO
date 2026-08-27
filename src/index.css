@@ -21,8 +21,11 @@
     --fg-muted: 232 232 232;    /* body on dark          */
     --fg-subtle: 174 174 174;   /* secondary / captions  */
 
-    --brand: 172 249 109;       /* #acf96d lime          */
-    --brand-hover: 155 232 92;  /* #9be85c               */
+    /* Accent resolves from the active preset (see [data-accent] below).
+       Each preset carries a dark-mode and a light-mode value, because an
+       accent readable on #010101 is almost never readable on #fafaf9. */
+    --brand: var(--brand-d);
+    --brand-hover: var(--brand-d-hover);
     --brand-ink: 4 10 2;        /* text on brand fills   */
     --beam: 125 211 252;        /* #7dd3fc sky           */
     --flare: 244 114 182;       /* #f472b6 pink          */
@@ -49,6 +52,91 @@
     --input: 0 0% 25%;
     --ring: 92 92% 71%;
     --radius: 0.625rem;
+  }
+
+  /* ----------------------------------------------------------------------
+   * Accent presets. Each defines the same hue twice: one value tuned for the
+   * dark ground, one darkened for the light ground. Every light value was
+   * checked at >= 4.5:1 on #fafaf9, and white-on-accent at >= 4.9:1.
+   * -------------------------------------------------------------------- */
+  :root,
+  :root[data-accent='lime'] {
+    --brand-d: 172 249 109;   --brand-d-hover: 155 232 92;
+    --brand-l: 63 125 22;     --brand-l-hover: 55 110 19;
+  }
+  :root[data-accent='sky'] {
+    --brand-d: 125 211 252;   --brand-d-hover: 96 197 250;
+    --brand-l: 2 118 173;     --brand-l-hover: 2 103 150;
+  }
+  :root[data-accent='violet'] {
+    --brand-d: 196 165 255;   --brand-d-hover: 178 141 252;
+    --brand-l: 109 62 214;    --brand-l-hover: 95 52 190;
+  }
+  :root[data-accent='amber'] {
+    --brand-d: 251 191 36;    --brand-d-hover: 245 175 10;
+    --brand-l: 161 98 7;      --brand-l-hover: 140 85 6;
+  }
+
+  /* ----------------------------------------------------------------------
+   * Day theme.
+   *
+   * Only one selector is needed because the boot script in index.html
+   * resolves "system" to a concrete light/dark value before first paint —
+   * so there is no prefers-color-scheme block here to drift out of sync.
+   * -------------------------------------------------------------------- */
+  :root[data-theme='light'] {
+    --canvas: 250 250 249;      /* #fafaf9 warm paper    */
+    --canvas-deep: 255 255 255;
+    --panel: 255 255 255;
+    --panel-raised: 245 245 244;
+    --line: 231 229 228;
+    --line-strong: 214 211 209;
+
+    --fg: 12 10 9;              /* 18.9:1                */
+    --fg-muted: 41 37 36;       /* 14.5:1                */
+    --fg-subtle: 87 83 78;      /*  7.3:1                */
+
+    --brand: var(--brand-l);
+    --brand-hover: var(--brand-l-hover);
+    --brand-ink: 255 255 255;   /* white on the accent   */
+    --beam: 2 118 173;
+    --flare: 190 24 93;
+    --solar: 161 98 7;
+
+    /* shadcn/ui equivalents */
+    --background: 60 9% 98%;
+    --foreground: 20 14% 4%;
+    --card: 0 0% 100%;
+    --card-foreground: 20 14% 4%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 20 14% 4%;
+    --primary: 92 70% 29%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 60 5% 96%;
+    --secondary-foreground: 20 14% 4%;
+    --muted: 60 5% 96%;
+    --muted-foreground: 25 5% 33%;
+    --accent: 92 70% 29%;
+    --accent-foreground: 0 0% 100%;
+    --border: 20 6% 90%;
+    --input: 20 6% 90%;
+    --ring: 92 70% 29%;
+  }
+
+  /* The stock shadows are tuned for a black ground; on paper they read as
+     smudges. Lighter, tighter, and tinted with the warm neutral instead. */
+  :root[data-theme='light'] .shadow-panel {
+    box-shadow: 0 1px 2px rgb(28 25 23 / 0.05), 0 4px 10px -2px rgb(28 25 23 / 0.06),
+      0 18px 36px -12px rgb(28 25 23 / 0.08);
+  }
+  :root[data-theme='light'] .shadow-lift {
+    box-shadow: 0 2px 4px rgb(28 25 23 / 0.05), 0 12px 24px -6px rgb(28 25 23 / 0.08),
+      0 32px 56px -18px rgb(28 25 23 / 0.10);
+  }
+
+  /* Theme changes should cross-fade, but never fight the reveal animations. */
+  :root[data-theme] body {
+    transition: background-color 250ms ease, color 250ms ease;
   }
 }
 
@@ -127,6 +215,28 @@
            hover:bg-brand-hover hover:scale-[1.03]
            active:scale-[0.99]
            disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100;
+  }
+
+  /*
+   * Resume call-to-action. Deliberately distinct from both the solid primary
+   * and the neutral ghost so the download reads as a highlighted action
+   * everywhere it appears — nav, hero, about and contact.
+   */
+  .btn-resume {
+    @apply inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full
+           border border-brand/60 bg-brand/10 text-brand font-semibold
+           transition-all duration-250 ease-spring
+           hover:bg-brand hover:text-brand-ink hover:border-brand hover:scale-[1.03]
+           hover:shadow-brand-glow
+           active:scale-[0.99];
+  }
+
+  /* Compact variant for the navigation bar. */
+  .btn-resume-sm {
+    @apply inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold
+           border border-brand/60 bg-brand/10 text-brand
+           transition-all duration-250 ease-spring
+           hover:bg-brand hover:text-brand-ink;
   }
 
   .btn-ghost {

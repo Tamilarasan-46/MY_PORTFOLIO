@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Menu, X, Download } from 'lucide-react'
 import { profile } from '../data/profile'
+import ThemeControls from './ThemeControls'
 
 const navLinks = [
   { name: 'Home', id: 'hero' },
@@ -115,13 +116,14 @@ export default function Navigation() {
             </ul>
 
             <div className="hidden md:flex items-center gap-2">
+              <ThemeControls />
               <a
                 href={profile.resumeUrl}
                 download
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 text-sm font-medium text-fg-subtle rounded-lg transition-colors duration-200 hover:text-brand"
+                className="btn-resume-sm"
               >
                 <Download size={16} aria-hidden="true" />
-                Résumé
+                Resume
               </a>
               <a
                 href="#contact"
@@ -191,15 +193,19 @@ export default function Navigation() {
               )
             })}
 
+            <li className="border-t border-line/60 mt-3">
+              <ThemeControls compact />
+            </li>
+
             <li className="pt-3 space-y-2">
               <a
                 href={profile.resumeUrl}
                 download
-                className="btn-ghost w-full"
+                className="btn-resume w-full"
                 onClick={() => setIsMenuOpen(false)}
               >
                 <Download size={18} aria-hidden="true" />
-                Résumé
+                Resume
               </a>
               <a
                 href="#contact"
