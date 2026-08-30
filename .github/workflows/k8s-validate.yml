@@ -21,13 +21,7 @@ permissions:
 env:
   KUBECONFORM_VERSION: v0.8.0
   KIND_VERSION: v0.33.0
-  # Two different things that must NOT be derived from one another:
-  #   K8S_VERSION     - an API version kubeconform publishes schemas for.
-  #   KIND_NODE_IMAGE - an actually-published kindest/node tag. kind only
-  #                     builds images for specific patch releases, so
-  #                     kindest/node:v1.36.0 does not exist while v1.36.4 does.
-  K8S_VERSION: '1.36.4'
-  KIND_NODE_IMAGE: 'kindest/node:v1.36.4'
+  K8S_VERSION: 1.35.0
 
 jobs:
   schema-lint:
@@ -83,7 +77,7 @@ jobs:
         with:
           version: ${{ env.KIND_VERSION }}
           # Pinned so the cluster runs the same API version schema-lint checks.
-          node_image: ${{ env.KIND_NODE_IMAGE }}
+          node_image: kindest/node:v${{ env.K8S_VERSION }}
           cluster_name: ci
           wait: 120s
 
@@ -99,8 +93,10 @@ jobs:
       # cluster never sees the ghcr.io/OWNER/REPO placeholder. Applying first
       # and then `kubectl set image` produces a guaranteed ImagePullBackOff and
       # three rollout revisions.
+      
       - name: Install kustomize
         run: |
+          sudo rm -f /usr/local/bin/kustomize
           curl -fsSL "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" \
             | bash -s -- 5.7.1 /usr/local/bin
 
