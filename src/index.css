@@ -274,6 +274,19 @@
    * Lime on one side, sky on the other — the two accent tokens — which is what
    * lifts a navy suit off a #010101 background instead of letting it merge.
    */
+  /*
+   * Brand marks carry a corrected colour for each ground (see TechIcon).
+   * Dark is the default; light mode swaps to the darkened variant, because a
+   * colour lightened enough to read on #010101 is invisible on #fafaf9.
+   */
+  .tech-icon {
+    fill: var(--mark-dark, currentColor);
+  }
+
+  :root[data-theme='light'] .tech-icon {
+    fill: var(--mark-light, currentColor);
+  }
+
   .portrait-rim {
     filter: drop-shadow(-2px 0 2px rgb(var(--brand) / 0.2))
       drop-shadow(2px 1px 3px rgb(var(--beam) / 0.14))

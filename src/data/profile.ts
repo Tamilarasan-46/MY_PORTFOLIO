@@ -100,7 +100,7 @@ export const skillCategories = [
     title: 'Languages',
     icon: Braces,
     accent: 'brand' as const,
-    skills: ['JavaScript', 'Elixir', 'Python', 'SQL'],
+    skills: ['C', 'Java', 'JavaScript', 'Elixir', 'Python', 'SQL'],
   },
   {
     title: 'Frontend',
@@ -109,10 +109,10 @@ export const skillCategories = [
     skills: ['Vue.js', 'HTML5', 'CSS3', 'Bootstrap'],
   },
   {
-    title: 'Backend',
+    title: 'Backend & APIs',
     icon: Server,
     accent: 'flare' as const,
-    skills: ['Phoenix Framework', 'REST APIs'],
+    skills: ['Phoenix Framework', 'Django', 'REST APIs'],
   },
   {
     title: 'Databases',
@@ -121,7 +121,7 @@ export const skillCategories = [
     skills: ['PostgreSQL', 'MySQL', 'MongoDB'],
   },
   {
-    title: 'Domain & Concepts',
+    title: 'Domain Expertise',
     icon: Workflow,
     accent: 'brand' as const,
     skills: ['ERP', 'SaaS', 'AI-assisted Accounting', 'GST', 'e-Invoice', 'Workflow Automation'],
@@ -143,7 +143,16 @@ export const stackTiers = [
     title: 'Daily driver',
     blurb: 'The stack I open every morning and ship in.',
     accent: 'brand' as const,
-    items: ['Vue.js', 'JavaScript', 'Elixir', 'Phoenix Framework', 'PostgreSQL', 'REST APIs', 'Git'],
+    items: [
+      'Vue.js',
+      'JavaScript',
+      'Elixir',
+      'Phoenix Framework',
+      'PostgreSQL',
+      'SQL',
+      'REST APIs',
+      'Git',
+    ],
   },
   {
     title: 'Shipped in production',
@@ -156,6 +165,12 @@ export const stackTiers = [
     blurb: 'Business rules I have implemented, not just read about.',
     accent: 'flare' as const,
     items: ['ERP', 'GST', 'e-Invoice', 'AI-assisted Accounting', 'SaaS', 'Workflow Automation'],
+  },
+  {
+    title: 'Foundations',
+    blurb: 'Studied formally and built with, outside the day-to-day stack.',
+    accent: 'solar' as const,
+    items: ['C', 'Java', 'Django'],
   },
 ] as const
 
@@ -346,6 +361,8 @@ export const certifications = [
     title: 'SQL Certification',
     issuer: 'Alan Kay Coding Club',
     date: 'October 2023',
+    credentialUrl:
+      'https://drive.google.com/file/d/1lborUsj0aCLXq3WGqZY-IHSeVfVTKVHw/view?usp=sharing',
     skills: ['SQL syntax', 'Joins (INNER, LEFT, RIGHT, FULL, SELF)', 'Query optimization'],
     icon: Database,
     accent: 'beam' as const,
@@ -354,6 +371,8 @@ export const certifications = [
     title: 'Frontend Development',
     issuer: 'Skillup',
     date: 'February 2024',
+    credentialUrl:
+      'https://drive.google.com/file/d/1kDlz8nJUga0cmrNFUGvDa2rfN-gxzvAt/view?usp=sharing',
     skills: ['HTML', 'CSS', 'Responsive design', 'Flexbox', 'Grid', 'UI/UX principles'],
     icon: Layers3,
     accent: 'flare' as const,

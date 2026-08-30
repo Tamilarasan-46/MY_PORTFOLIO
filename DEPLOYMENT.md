@@ -16,9 +16,14 @@ notes flag the ones that moved recently.
 | Docker image | **ghcr.io** (public package) | Free, unmetered | No |
 | Kubernetes | **kind cluster inside CI** | Free | No |
 
-That is a complete, genuinely $0, no-credit-card pipeline: every push builds, lints,
-publishes a multi-arch image, stands up a real Kubernetes cluster, applies the manifests,
-verifies the rollout, and deploys the live site.
+That is a complete, genuinely $0, no-credit-card pipeline: lint and build, a multi-arch
+image, a real Kubernetes cluster that applies the manifests and verifies the rollout, and
+the live site.
+
+**Only the Pages deploy runs automatically.** CI, the image publish and the Kubernetes
+validation are `workflow_dispatch` only, so a commit to `main` publishes the site and
+nothing else. They are unchanged otherwise — start them from the Actions tab with
+"Run workflow", or restore the `push:` triggers commented at the top of each file.
 
 **The one honest caveat:** a *permanently running* managed Kubernetes cluster is **not**
 free in 2026 (see [§5](#5-kubernetes--the-honest-answer)). Everything else on your list is.
@@ -140,15 +145,15 @@ kubectl apply -k k8s/
 kubectl rollout status deployment/portfolio
 ```
 
-**How it's verified for free.** `.github/workflows/k8s-validate.yml` runs on every change
-under `k8s/`:
+**How it's verified for free.** `.github/workflows/k8s-validate.yml` — run it manually from
+the Actions tab:
 
 1. `kubeconform` — schema validation against Kubernetes 1.36 (fast, no cluster).
 2. A real **kind** cluster inside the runner — builds this commit's image, loads it,
    `kubectl apply -k`, waits for the rollout, then curls `/healthz` and `/` from inside
    the cluster.
 
-That proves the manifests genuinely work, on every push, at zero cost.
+That proves the manifests genuinely work, whenever you run it, at zero cost.
 
 ### Why there is no free 24/7 cluster
 

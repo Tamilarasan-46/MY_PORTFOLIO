@@ -8,12 +8,16 @@ name: Publish container image
 # Package settings → Danger Zone → Change visibility → Public.
 # New packages are created PRIVATE and the workflow cannot change that.
 
+# Manual-only. The automatic push/pull_request triggers were removed so a
+# commit to main runs the GitHub Pages deploy and nothing else. The workflow
+# itself is intact — run it on demand from the Actions tab ("Run workflow"),
+# or restore the triggers below to bring it back.
+#
+#   push:
+#     branches: [main]
+#   pull_request:
+#     branches: [main]
 on:
-  push:
-    branches: [main]
-    tags: ['v*.*.*']
-  pull_request:
-    branches: [main]
   workflow_dispatch:
 
 env:

@@ -1,17 +1,22 @@
 name: CI
 
+# Manual-only. The automatic push/pull_request triggers were removed so a
+# commit to main runs the GitHub Pages deploy and nothing else. The workflow
+# itself is intact — run it on demand from the Actions tab ("Run workflow"),
+# or restore the triggers below to bring it back.
+#
+#   push:
+#     branches: [main]
+#   pull_request:
+#     branches: [main]
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
   workflow_dispatch:
 
-# Cancel superseded PR runs, but never cancel a run on main — a commit could
-# otherwise land with no green build behind it.
+# Kept for when the push/pull_request triggers are restored; with manual runs
+# only, this simply stops two hand-started runs overlapping.
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.head_ref || github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  cancel-in-progress: false
 
 permissions:
   contents: read

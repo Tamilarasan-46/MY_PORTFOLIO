@@ -3,13 +3,16 @@ name: Validate Kubernetes manifests
 # Proves the manifests are real: schema-checked, then actually rolled out on a
 # throwaway kind cluster inside the runner and curled. Costs nothing.
 
+# Manual-only. The automatic push/pull_request triggers were removed so a
+# commit to main runs the GitHub Pages deploy and nothing else. The workflow
+# itself is intact — run it on demand from the Actions tab ("Run workflow"),
+# or restore the triggers below to bring it back.
+#
+#   push:
+#     branches: [main]
+#   pull_request:
+#     branches: [main]
 on:
-  push:
-    branches: [main]
-    paths: ['k8s/**', 'Dockerfile', 'deploy/**', '.github/workflows/k8s-validate.yml']
-  pull_request:
-    branches: [main]
-    paths: ['k8s/**', 'Dockerfile', 'deploy/**', '.github/workflows/k8s-validate.yml']
   workflow_dispatch:
 
 permissions:

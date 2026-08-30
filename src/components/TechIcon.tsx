@@ -1,4 +1,6 @@
 import {
+  siC,
+  siOpenjdk,
   siJavascript,
   siElixir,
   siPython,
@@ -15,6 +17,7 @@ import {
   siDjango,
   siReact,
 } from 'simple-icons'
+import type { CSSProperties } from 'react'
 import type { LucideIcon } from 'lucide-react'
 import {
   Database,
@@ -37,27 +40,47 @@ interface SimpleIcon {
   path: string
 }
 
+const channel = (v: number) => {
+  const s = v / 255
+  return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4
+}
+
+const luminance = (r: number, g: number, b: number) =>
+  0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b)
+
+/** Page grounds the icons sit on, from the tokens in index.css. */
+const GROUND = {
+  dark: luminance(1, 1, 1), //   #010101
+  light: luminance(250, 250, 249), // #fafaf9
+} as const
+
 /**
- * Raise a brand colour until it clears `min` contrast against the page ground.
+ * Push a brand colour until it clears `min` contrast against the given ground.
  *
- * Several official brand colours are unreadable on #010101 — Elixir's #4B275F
- * sits at 1.74:1 and CSS's #663399 at 2.48:1. Lightening preserves the hue, so
- * the logo stays recognisable without disappearing into the background.
+ * This has to run per theme, not once. Lightening for the dark ground is what
+ * rescues Elixir (#4B275F, 1.74:1) and CSS (#663399, 2.48:1) — but the same
+ * lightened values then fail on paper: JavaScript's yellow lands at 1.29:1 on
+ * #fafaf9 and all but disappears. So dark mode lightens and light mode darkens,
+ * and each icon carries both values.
+ *
+ * Nudging all three channels together preserves hue, so the mark stays
+ * recognisable either way.
  */
-function readable(hex: string, min = 3): string {
-  const channel = (v: number) => {
-    const s = v / 255
-    return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4
+function readable(hex: string, ground: keyof typeof GROUND, min = 3): string {
+  let [r, g, b] = [0, 2, 4].map((i) => Number.parseInt(hex.slice(i, i + 2), 16))
+
+  const gl = GROUND[ground]
+  const ratio = () => {
+    const l = luminance(r, g, b)
+    const [hi, lo] = l > gl ? [l, gl] : [gl, l]
+    return (hi + 0.05) / (lo + 0.05)
   }
 
-  let [r, g, b] = [0, 2, 4].map((i) => Number.parseInt(hex.slice(i, i + 2), 16))
-  const ratio = () =>
-    (0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b) + 0.05) / (0.0003 + 0.05)
-
+  const step = ground === 'dark' ? 8 : -8
   for (let guard = 0; ratio() < min && guard < 64; guard++) {
-    r = Math.min(255, r + 8)
-    g = Math.min(255, g + 8)
-    b = Math.min(255, b + 8)
+    r = Math.min(255, Math.max(0, r + step))
+    g = Math.min(255, Math.max(0, g + step))
+    b = Math.min(255, Math.max(0, b + step))
   }
 
   return `#${[r, g, b].map((v) => v.toString(16).padStart(2, '0')).join('')}`
@@ -71,6 +94,17 @@ function readable(hex: string, min = 3): string {
  * renders identically alongside them.
  */
 const EXTRA: Record<string, SimpleIcon> = {
+  /*
+   * Simple Icons dropped the Java mark over Oracle's trademark policy, so this
+   * reuses OpenJDK's shipped path — a real path from the package rather than a
+   * hand-drawn one — under Java's own orange, which is what makes it read as
+   * Java at 14px. OpenJDK's own #000000 would be invisible here.
+   */
+  Java: {
+    title: 'Java',
+    hex: 'ED8B00',
+    path: siOpenjdk.path,
+  },
   'VS Code': {
     title: 'Visual Studio Code',
     hex: '007ACC',
@@ -81,6 +115,7 @@ const EXTRA: Record<string, SimpleIcon> = {
 /** Brand marks, keyed by the exact skill string used in profile.ts. */
 const BRAND: Record<string, SimpleIcon> = {
   ...EXTRA,
+  C: siC,
   JavaScript: siJavascript,
   Elixir: siElixir,
   Python: siPython,
@@ -118,11 +153,11 @@ const GENERIC: Record<string, LucideIcon> = {
 }
 
 /** Cache the contrast correction — it is pure and runs per icon otherwise. */
-const colourCache = new Map<string, string>()
+const colourCache = new Map<string, { dark: string; light: string }>()
 const brandColour = (hex: string) => {
   let c = colourCache.get(hex)
   if (!c) {
-    c = readable(hex)
+    c = { dark: readable(hex, 'dark'), light: readable(hex, 'light') }
     colourCache.set(hex, c)
   }
   return c
@@ -143,6 +178,7 @@ export default function TechIcon({
   const brand = BRAND[name]
 
   if (brand) {
+    const c = brandColour(brand.hex)
     return (
       <svg
         role="img"
@@ -151,8 +187,15 @@ export default function TechIcon({
         viewBox="0 0 24 24"
         width={size}
         height={size}
-        className={`shrink-0 ${className}`}
-        fill={colour ? brandColour(brand.hex) : 'currentColor'}
+        className={`tech-icon shrink-0 ${className}`}
+        // Both corrected values ride along as custom properties; index.css
+        // picks one per theme, so the swap is pure CSS and needs no re-render.
+        style={
+          colour
+            ? ({ '--mark-dark': c.dark, '--mark-light': c.light } as CSSProperties)
+            : undefined
+        }
+        fill={colour ? undefined : 'currentColor'}
       >
         <path d={brand.path} />
       </svg>
